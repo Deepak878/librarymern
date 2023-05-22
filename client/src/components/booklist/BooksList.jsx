@@ -19,28 +19,46 @@ import {
   TablePagination,
 } from "@mui/material";
 import { BookApi } from "../../client/backendapi/book";
-
+import { useUser } from "../../context/userContext";
+import { UserApi } from "../../client/backendapi/user";
 const BooksList = () => {
   const [books, setBooks] = useState([]);
   const [borrowedBook, setBorrowedBook] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  
+  const [activeBookIsbn, setActiveBookIsbn] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const { isAdmin, user } = useUser();
 
   const fetchBooks = async () => {
     const { books } = await BookApi.getAllBooks();
     console.log(books);
     setBooks(books);
   };
+  const fetchUserBook = async () => {
+    const { books } = await UserApi.getBorrowBook();
+    setBorrowedBook(books);
+  };
+
+  const deleteBook = () => {
+    console.log("delet");
+    if (activeBookIsbn && books.length) {
+      BookApi.deleteBook(activeBookIsbn).then(({ success }) => {
+        fetchBooks().catch(console.error);
+        setOpenModal(false);
+        setActiveBookIsbn("");
+      });
+    }
+  };
   useEffect(() => {
     fetchBooks().catch(console.error);
-  }, [1]);
+    fetchUserBook().catch(console.error);
+  }, [user]);
 
   return (
     <div>
       <div className={`${classes.pageHeader} ${classes.mb2}`}>
         <Typography variant="h5">Book List</Typography>
-        
       </div>
       {books.length > 0 ? (
         <>
@@ -87,6 +105,30 @@ const BooksList = () => {
                           >
                             View
                           </Button>
+                          {isAdmin && (
+                            <>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                component={RouterLink}
+                                size="small"
+                                to={`/admin/books/${book.isbn}/edit`}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="secondary"
+                                size="small"
+                                onClick={(e) => {
+                                  setActiveBookIsbn(book.isbn);
+                                  setOpenModal(true);
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -104,15 +146,69 @@ const BooksList = () => {
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(e, newPage) => setPage(newPage)}
-            />
-           
+            />{" "}
+            <Modal open={openModal} onClose={(e) => setOpenModal(false)}>
+              <Card className={classes.conf_modal}>
+                <CardContent>
+                  <h2>Are you sure?</h2>
+                </CardContent>
+                <CardActions className={classes.conf_modal_actions}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setOpenModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={deleteBook}
+                  >
+                    Delete
+                  </Button>
+                </CardActions>
+              </Card>
+            </Modal>
           </div>
         </>
       ) : (
         <Typography variant="h5">No books found!</Typography>
       )}
-
-     
+      {user && !isAdmin && (
+        <>
+          <div className={`${classes.pageHeader} ${classes.mb2}`}>
+            <Typography variant="h5">Borrowed Books</Typography>
+          </div>
+          {borrowedBook.length > 0 ? (
+            <>
+              {borrowedBook.map((book) => (
+                <TableRow key={book.isbn}>
+                  <TableCell component="th" scope="row">
+                    {book.name}
+                  </TableCell>
+                  <TableCell align="right">{book.isbn}</TableCell>
+                  <TableCell>{book.category}</TableCell>
+                  <TableCell align="right">{`$${book.price}`}</TableCell>
+                  <TableCell>
+                    <div className={classes.actionsContainer}>
+                      <Button
+                        variant="contained"
+                        component={RouterLink}
+                        size="small"
+                        to={`/books/${book.isbn}`}
+                      >
+                        View
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </>
+          ) : (
+            <Typography variant="h5">No books issued!</Typography>
+          )}
+        </>
+      )}
     </div>
   );
 };

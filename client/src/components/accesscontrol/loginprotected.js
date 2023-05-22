@@ -1,6 +1,6 @@
 import { NotificationManager } from "react-notifications"
 import { Navigate } from "react-router-dom"
-import { useUser } from "../../context/user-context"
+import { useUser } from "../../context/userContext"
 
 export const WithLoginProtector = ({ children }) => {
     const { user } = useUser()

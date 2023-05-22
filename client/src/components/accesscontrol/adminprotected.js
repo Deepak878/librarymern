@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom"
-import { useUser } from "../../context/user-context"
+import { useUser } from "../../context/userContext"
 
 export const WithAdminProtector = ({ children }) => {
     const { isAdmin } = useUser()

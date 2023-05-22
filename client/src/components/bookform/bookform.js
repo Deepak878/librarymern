@@ -14,8 +14,8 @@ import {
     MenuItem,
     Typography,
 } from "@mui/material"
-import { BackendApi } from "../../client/backend-api"
-import classes from "./styles.module.css"
+import { BookApi } from "../../client/backendapi/book"
+import classes from "./style.module.css"
 
 dayjs.extend(utc)
 
@@ -28,8 +28,8 @@ export const BookForm = () => {
         category: "",
         price: 0,
         quantity: 0,
-        priceHistory: [],
-        quantityHistory: [],
+        // priceHistory: [],
+        // quantityHistory: [],
     })
     const [errors, setErrors] = useState({
         name: "",
@@ -62,7 +62,7 @@ export const BookForm = () => {
                 ) {
                     newQuantityHistory.push({ quantity: newQuantity, modifiedAt: dayjs().utc().format() })
                 }
-                BackendApi.book
+                BookApi
                     .patchBookByIsbn(bookIsbn, {
                         ...book,
                         priceHistory: newPriceHistory,
@@ -70,7 +70,7 @@ export const BookForm = () => {
                     })
                     .then(() => navigate(-1))
             } else {
-                BackendApi.book
+                BookApi
                     .addBook({
                         ...book,
                         priceHistory: [{ price: book.price, modifiedAt: dayjs().utc().format() }],
@@ -107,7 +107,7 @@ export const BookForm = () => {
 
     useEffect(() => {
         if (bookIsbn) {
-            BackendApi.book.getBookByIsbn(bookIsbn).then(({ book, error }) => {
+            BookApi.getBookByIsbn(bookIsbn).then(({ book, error }) => {
                 if (error) {
                     navigate("/")
                 } else {

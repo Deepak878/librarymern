@@ -15,7 +15,10 @@
     "@mui/material": "^5.9.1",
     "web-vitals": "^2.1.4",
     "react-notifications": "^1.7.4",
-    "react-router-dom": "^6.3.0"
+    "react-router-dom": "^6.3.0",
+    "dayjs": "^1.11.4",
+    "highcharts": "^10.2.0",
+    "highcharts-react-official": "^3.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

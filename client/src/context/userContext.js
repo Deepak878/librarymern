@@ -17,17 +17,17 @@ const UserProvider = ({ children }) => {
     setIsAdmin(user && user.role === "admin");
   }, [user]);
 
-  // useEffect(() => {
-  //   BookApi.getProfile()
-  //     .then(({ user, error }) => {
-  //       if (error) {
-  //         console.log(error);
-  //       } else {
-  //         setUser(user);
-  //       }
-  //     })
-  //     .catch(console.error);
-  // }, []);
+  useEffect(() => {
+    UserApi.getProfile()
+      .then(({ user, error }) => {
+        if (error) {
+          console.log(error);
+        } else {
+          setUser(user);
+        }
+      })
+      .catch(console.error);
+  }, []);
   const loginUser = async (username, password) => {
     const { user, error } = await UserApi.login(username, password);
     if (error) {
@@ -39,7 +39,7 @@ const UserProvider = ({ children }) => {
   };
   const logoutUser = async () => {
     setUser(null);
-    await UserApi.user.logout();
+    await UserApi.logout();
   };
   return (
     <UserContext.Provider value={{ user, loginUser, logoutUser, isAdmin }}>
