@@ -8,7 +8,8 @@ const sessions = require("express-session")
 const cookieParser = require("cookie-parser")
 const app = express()
 const { connectDb } = require("./db.js")
-
+const cors = require("cors");
+app.use(cors());
 app.use(morgan("dev"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -17,7 +18,7 @@ app.use(cookieParser())
 const { UserModel } = require("./models/user")
 app.use(
   sessions({
-    secret: process.env.SESSION_SECRET,
+    secret: 'mysecret',
     saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 },
     resave: true,

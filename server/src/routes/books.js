@@ -2,12 +2,14 @@ const router = require("express")()
 const { BookModel } = require("../models/book")
 
 router.get("/", async (req, res, next) => {
+  console.log('oko');
   try {
+   console.log("yet");
     const books = await BookModel.find({})
     return res.status(200).json({
       books: books.map((book) => ({
         ...book.toJSON(),
-        availableQuantity: book.quantity - book.borrowedBy.length,
+        // availableQuantity: book.quantity - book.borrowedBy.length,
       })),
     })
   } catch (err) {
