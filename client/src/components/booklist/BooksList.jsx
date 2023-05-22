@@ -21,6 +21,10 @@ import {
 import { BookApi } from "../../client/backendapi/book";
 import { useUser } from "../../context/userContext";
 import { UserApi } from "../../client/backendapi/user";
+import IconButton from "@mui/material/IconButton";
+import SearchIcon from "@mui/icons-material/Search";
+import TextField from "@mui/material/TextField";
+
 const BooksList = () => {
   const [books, setBooks] = useState([]);
   const [borrowedBook, setBorrowedBook] = useState([]);
@@ -29,6 +33,23 @@ const BooksList = () => {
   const [activeBookIsbn, setActiveBookIsbn] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const { isAdmin, user } = useUser();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+  const filteredData = books.filter((item) =>{
+    const loweredSearchTerm = searchTerm.toLowerCase();
+return item.name.toLowerCase().includes(loweredSearchTerm) ||
+item.category.toLowerCase().includes(loweredSearchTerm) ||
+item.price.toString().includes(loweredSearchTerm) ||
+item.isbn.toString().includes(loweredSearchTerm)
+  }
+   
+    // item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    
+  );
+
 
   const fetchBooks = async () => {
     const { books } = await BookApi.getAllBooks();
@@ -57,9 +78,17 @@ const BooksList = () => {
 
   return (
     <div>
+
+    
       <div className={`${classes.pageHeader} ${classes.mb2}`}>
         <Typography variant="h5">Book List</Typography>
       </div>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleSearch}
+        placeholder="Search..."
+      />
       {books.length > 0 ? (
         <>
           <div className={classes.tableContainer}>
@@ -69,7 +98,7 @@ const BooksList = () => {
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell align="right">ISBN</TableCell>
-                    <TableCell>Category</TableCell>
+                    <TableCell>Genre</TableCell>
                     <TableCell align="right">Quantity</TableCell>
                     <TableCell align="right">Available</TableCell>
                     <TableCell align="right">Price</TableCell>
@@ -78,7 +107,7 @@ const BooksList = () => {
                 </TableHead>
                 <TableBody>
                   {(rowsPerPage > 0
-                    ? books.slice(
+                    ? filteredData.slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
