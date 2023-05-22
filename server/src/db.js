@@ -2,12 +2,6 @@ const { connect } = require("mongoose")
 
 const mongoose = require("mongoose");
 
-
-//   const connectDb =async()=>{
-//   return mongoose.connect(process.env.DB_URI)
-//   console.log('Database connected');
-// }
-
 const connectDb = async ()=>{
   try {
 await mongoose.connect('mongodb+srv://dbUsername:dbPassword@cluster0.hvzq96b.mongodb.net/library?')
