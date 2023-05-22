@@ -2,6 +2,20 @@
 const router = require("express")()
 const { UserModel } = require("../models/user")
 
+const omitPassword = (user) => {
+  const { password, ...rest } = user
+  return rest
+}
+
+router.get("/", async (req, res, next) => {
+  try {
+    const users = await UserModel.find({})
+    return res.status(200).json({ users: users.map((user) => omitPassword(user.toJSON())) })
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.post("/login", async (req, res, next) => {
   try {
     const user = await UserModel.findOne({ username: req.body.username })
