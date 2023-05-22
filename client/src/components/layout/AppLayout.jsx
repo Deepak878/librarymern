@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -12,22 +12,50 @@ import {
   Tooltip,
   MenuItem,
 } from "@mui/material";
+import { useUser } from "../../context/userContext.js";
 import AdbIcon from "@mui/icons-material/Adb";
 import BooksList from "../booklist/BooksList";
 import { LoginDialog } from "../logindialog/LoginDialog";
 import { Route, Routes, Navigate, Link } from "react-router-dom";
-
-
+import { useNavigate } from "react-router-dom";
+import { BookForm } from "../book-form/book-form"
+import { WithLoginProtector } from "../access-control/login-protector"
+import { WithAdminProtector } from "../access-control/admin-protector"
 const Applayout = () => {
   const [openLoginDialog,setOpenLoginDialog] = useState(false)
+const [anchorElUser, setAnchorElUser]= useState(null)
+  const {user,loginUser, logoutUser, isAdmin} = useUser()
+ const navigate = useNavigate()
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget)
+}
+
+const handleCloseUserMenu = () => {
+    setAnchorElUser(null)
+}
+
+
 
   const handleLoginSubmit = (username,password)=>{
-    console.log(username,password)
+    loginUser(username,password)
+    // console.log(username,password)
     setOpenLoginDialog(false)
   }
   const handleLoginClose = ()=>{
     setOpenLoginDialog(false)
   }
+  const handleLogout = ()=>{
+    logoutUser()
+    // handleCloseUserMenu()
+  }
+  useEffect(() => {
+    if (!user) {
+        navigate("/")
+    } else if (isAdmin) {
+        navigate("/admin/books/add")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [user, isAdmin])
   return (
     <>
       <AppBar position="static">
@@ -57,14 +85,47 @@ const Applayout = () => {
                 }}
               >
              
-                <Button
-                  onClick={() => {
-                     setOpenLoginDialog(true)
-                  }}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  Login
-                </Button>
+             {user ? (
+                                <>
+                                    <Tooltip title="Open settings">
+                                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                            <Avatar> {user.username.charAt(0).toUpperCase()} </Avatar>
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Menu
+                                        sx={{ mt: "45px" }}
+                                        id="menu-appbar"
+                                        anchorEl={anchorElUser}
+                                        anchorOrigin={{
+                                            vertical: "top",
+                                            horizontal: "right",
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: "top",
+                                            horizontal: "right",
+                                        }}
+                                        open={Boolean(anchorElUser)}
+                                        onClose={handleCloseUserMenu}
+                                    >
+                                        <MenuItem onClick={handleCloseUserMenu}>
+                                            <Typography textAlign="center">Dashboard</Typography>
+                                        </MenuItem>
+                                        <MenuItem onClick={handleLogout}>
+                                            <Typography textAlign="center">Logout</Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </>
+                            ) : (
+                                <Button
+                                    onClick={() => {
+                                        setOpenLoginDialog(true)
+                                    }}
+                                    sx={{ my: 2, color: "white", display: "block" }}
+                                >
+                                    Login
+                                </Button>
+                            )}
                 {/* )} */}
               </Box>
             </Toolbar>
@@ -72,6 +133,36 @@ const Applayout = () => {
         </AppBar>
         <Routes>
           <Route path="/books" exact element={<BooksList />} />
+          <Route
+                    path="/books/:bookIsbn"
+                    element={
+                        <WithLoginProtector>
+                            {/* <Book /> */}
+                        </WithLoginProtector>
+                    }
+                />
+          <Route
+                    path="/admin/books/add"
+                    element={
+                        <WithLoginProtector>
+                            <WithAdminProtector>
+                                <BookForm />
+                            </WithAdminProtector>
+                        </WithLoginProtector>
+                    }
+                    exact
+                />
+                <Route
+                    path="/admin/books/:bookIsbn/edit"
+                    element={
+                        <WithLoginProtector>
+                            <WithAdminProtector>
+                                <BookForm />
+                            </WithAdminProtector>
+                        </WithLoginProtector>
+                    }
+                />
+                <Route path="*" element={<Navigate to="/books" replace />} />
         </Routes>
         <LoginDialog
           open={openLoginDialog}

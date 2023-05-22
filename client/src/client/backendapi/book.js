@@ -1,7 +1,7 @@
 const BookApi = {
   getAllBooks: async () => {
     console.log("hlo");
-    const res = await fetch("http://localhost:8080/v1/book", { method: "GET" })
+    const res = await fetch("/v1/book", { method: "GET" })
     return res.json()
   },
   getBookByIsbn: async (bookIsbn) => {

@@ -6,6 +6,17 @@ const omitPassword = (user) => {
   const { password, ...rest } = user
   return rest
 }
+router.get("/profile", async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.session.userId)
+    if (user == null) {
+      return res.status(404).json({ error: "User not found" })
+    }
+    return res.status(200).json({ user: omitPassword(user.toJSON()) })
+  } catch (err) {
+    next(err)
+  }
+})
 
 router.get("/", async (req, res, next) => {
   try {
