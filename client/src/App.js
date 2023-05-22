@@ -2,11 +2,9 @@ import React, { Suspense } from "react"
 import { BrowserRouter as Router } from "react-router-dom"
 import { Container } from "@mui/material"
 import { NotificationContainer } from "react-notifications"
-import { AppLayout } from "./components/layout/AppLayout"
-import { UserProvider } from "./context/user-context"
+import AppLayout from "./components/layout/AppLayout.jsx"
 
 export const App = () => (
-  <UserProvider>
     <Suspense fallback={null}>
       <Container className="page-container">
         <Router>
@@ -15,5 +13,6 @@ export const App = () => (
         </Router>
       </Container>
     </Suspense>
-  </UserProvider>
 )
+
+export default App

@@ -23,6 +23,7 @@ const Applayout = () => {
 
   const handleLoginSubmit = (username,password)=>{
     console.log(username,password)
+    setOpenLoginDialog(false)
   }
   const handleLoginClose = ()=>{
     setOpenLoginDialog(false)
